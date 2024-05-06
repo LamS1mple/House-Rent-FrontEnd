@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng nhập</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin-top: 100px;
+        }
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        input[type="text"],
+        input[type="password"],
+        input[type="submit"] {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+        input[type="submit"] {
+            background-color: #4caf50;
+            color: white;
+            cursor: pointer;
+        }
+        input[type="submit"]:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Đăng nhập</h2>
+    <div>
+        <label for="username">Tên đăng nhập:</label>
+        <input type="text" id="username" name="username" required>
+
+        <label for="password">Mật khẩu:</label>
+        <input type="password" id="password" name="password" required>
+
+        <input onclick="sumbit()" id="sumbit" type="submit" value="Đăng nhập">
+    </div>
+</div>
+    
+</body>
+<script >
+    async function postData(url = "", data = {}){
+    const response = await fetch(url, {
+        method: "POST", 
+        mode: "cors", 
+        cache: "no-cache", 
+        credentials: "same-origin", 
+        headers: {
+          "Content-Type": "application/json",
+       
+        },
+        redirect: "follow", 
+        referrerPolicy: "no-referrer", 
+        body: JSON.stringify(data), 
+      });
+      return response.json(); 
+}
+
+
+function sumbit(){
+    postData(
+        "http://localhost:8080/login-quan-ly",
+        {
+          taiKhoan: document.querySelector("#username").value,
+          matKhau: document.querySelector("#password").value,
+        } 
+      ).then((data) => {
+        
+        if (data.message != "Account is not exits"){
+            window.location = "home.html"
+        }
+      });
+}
+</script>
+</html>

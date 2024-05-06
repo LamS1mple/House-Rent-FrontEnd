@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hóa đơn</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 8px;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    th, td {
+      border: 1px solid #dddddd;
+      text-align: left;
+      padding: 8px;
+    }
+    th {
+      background-color: #f2f2f2;
+    }
+
+    /* Basic Styles */
+    body {
+      font-family: Arial, sans-serif;
+    }
+    h2 {
+      text-align: center;
+    }
+    #bill-info {
+      margin-bottom: 20px;
+    }
+    #bill-info p {
+      margin-bottom: 5px;
+    }
+    </style>
+</head>
+<body>
+
+<div style="text-align: center;">
+    <h2>Thông tin hóa đơn</h2>
+
+<div id="bill-info">
+   
+</div>
+</div>
+
+<h3>Danh sách dịch vụ</h3>
+<table id="service-table">
+    <thead>
+        <tr>
+            <th>STT</th>
+            <th>Tên dịch vụ</th>
+            <th>Đơn giá</th>
+            <th>Số cũ</th>
+            <th>Số mới</th>
+            <th>Tổng tiền</th>
+        </tr>
+    </thead>
+    <tbody id="service-table-body">
+        
+    </tbody>
+</table>
+
+<h1 id="total-cost"><strong>Tổng tiền:</strong> 10.000đ</h1>
+
+<script>
+    var data = JSON.parse(localStorage.getItem("hoadon"))
+    // Dữ liệu dịch vụ
+    var services = [
+        { stt: 1, ten: "Điện", dongia: "1.00đ", socu: 10, somoi: 20, tongtien: "1.000đ" },
+        { stt: 2, ten: "Nước", dongia: "2.00đ", socu: 0, somoi: 10, tongtien: "4.000đ" }
+    ];
+    document.querySelector("#bill-info").innerHTML = `
+    <p><strong>Mã hóa đơn:</strong> ${padNumber(5, data.id)}</p>
+    <p><strong>Tên phòng:</strong> ${data.phongDat.phong.tenPhong}</p>
+    <p><strong>Tiền phòng:</strong> ${toTienDot(data.phongDat.phong.donGiaPhong)}/tháng</p>
+    `
+    // Render dữ liệu dịch vụ vào bảng
+    var serviceTableBody = document.getElementById("service-table-body");
+    data.phongDat.danhSachChiTietDichVu.forEach(function(service, index) {
+        var row = document.createElement("tr");
+        row.innerHTML = "<td>" + index + "</td>" +
+                        "<td>" + service.dichVu.tenDichVu + "</td>" +
+                        "<td>" + toTienDot(service.dichVu.donGia) + "</td>" +
+                        "<td>" + service.soLuongCu + "</td>" +
+                        "<td>" + service.soLuongMoi + "</td>" +
+                        "<td>" + toTienDot((service.dichVu.donGia ) *( service.soLuongMoi - service.soLuongCu)) + "</td>";
+        serviceTableBody.appendChild(row);
+    });
+
+    function padNumber(length, number) {
+        var str = "" + number;
+        while (str.length < length) {
+          str = "0" + str;
+        }
+        return "HD" + str;
+      }
+      function toTienDot(tien) {
+        tien += ""
+        kq = "";
+        doDai = tien.length - 1;
+        for (let i = doDai; i >= 0; i--) {
+          kq = tien[i] + kq;
+
+          if (i != 0 && doDai - 1 + 1 != 1 && (doDai - i + 1) % 3 == 0) {
+            kq = "." + kq;
+          }
+        }
+        return kq +"đ";
+      }
+    // Tính tổng tiền
+    function calculateTotalCost() {
+        var totalCost = 0;
+        services.forEach(function(service) {
+            totalCost += parseFloat(service.tongtien.replace("đ", "").replace(",", ""));
+        });
+        return totalCost.toLocaleString() + "đ";
+    }
+
+    var totalCostElement = document.getElementById("total-cost");
+    totalCostElement.innerHTML = "<strong>Tổng tiền:</strong> " + toTienDot(data.tongTien);
+</script>
+
+</body>
+</html>

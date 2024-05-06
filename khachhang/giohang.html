@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Giỏ hàng</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 8px;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .total {
+            text-align: right;
+        }
+        body, html {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+    }
+    header {
+        background-color: #343a40;
+        color: #fff;
+        padding: 20px 0;
+        text-align: center;
+      }
+
+      nav {
+        background-color: #495057;
+        color: #fff;
+        text-align: center;
+        padding: 10px 0;
+      }
+
+      nav a {
+        color: #fff;
+        text-decoration: none;
+        margin: 0 15px;
+      }
+    </style>
+</head>
+<body>
+    <div style="text-align: center; background-color: blanchedalmond;">
+        <header>
+            <h1>Cho Thuê Nhà</h1>
+          </header>
+          <nav>
+            <a href="home.html">Trang chủ</a>
+            <a href="giohang.html">Danh sách phòng chuẩn bị thuê</a>
+            <a href="#">Danh sách lần đặt thành công</a>
+          </nav>
+    </div>
+<h2>Giỏ hàng</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>STT</th>
+      <th>Tên phòng</th>
+      <th>Địa chỉ phòng</th>
+      <th>Mô tả</th>
+      <th>Đơn giá/ tháng</th>
+      <th>Thao tác</th>
+    </tr>
+  </thead>
+  <tbody id="cart-items">
+    <!-- Dữ liệu sẽ được thêm vào đây bằng JavaScript -->
+  </tbody>
+  <tfoot>
+    <tr>
+      <td colspan="4" class="total">Tổng tiền cọc:</td>
+      <td id="total-price">0</td>
+      <td></td>
+    </tr>
+  </tfoot>
+</table>
+<button type="button" class="btn btn-primary" onclick="chuyenTrang()">Thanh toán</button>
+<button type="button" class="btn btn-info" onclick="muaTiep()">Tiếp tụp thêm phong</button>
+
+<script>
+    var dulieu = ""
+    function chuyenTrang(){
+        localStorage.setItem("list-phong", JSON.stringify(dulieu))
+        window.location.href = "hopdong.html"
+    }
+    function muaTiep(){
+        window.location.href = "home.html"
+    }
+  // Dữ liệu mẫu về các phòng trong giỏ hàng
+  async function postData(url = "", data = {}){
+    const response = await fetch(url, {
+    method: "POST", // *GET, POST, PUT, DELETE, etc.
+    mode: "cors", // no-cors, *cors, same-origin
+    cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+    credentials: "same-origin", // include, *same-origin, omit
+    headers: {
+      "Content-Type": "application/json",
+      // 'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    redirect: "follow", // manual, *follow, error
+    referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+    body: JSON.stringify(data), // body data type must match "Content-Type" header
+  });
+  return response.json();
+  }
+
+  let landat = JSON.parse(localStorage.getItem("landat"))
+
+getData()
+  async function getData(){
+    var data = await postData("http://localhost:8080/lan-dat/get-lan-dat",landat)
+    console.log(data)
+    renderCart(data)
+  }
+  
+  const cartTable = document.getElementById('cart-items');
+  const totalPriceCell = document.getElementById('total-price');
+
+  // Hàm cập nhật lại giao diện giỏ hàng khi có thay đổi
+  function renderCart(data) {
+
+    localStorage.setItem("listPhong",JSON.stringify(data))
+    dulieu = data
+    cartTable.innerHTML = '';
+    let total = 0;
+    landat = []
+    data.forEach((item, index) => {
+        landat.push(item.id)
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td>${index + 1}</td>
+        <td>${item.tenPhong}</td>
+        <td>${item.diaChi}</td>
+        <td>${item.thongTinPhong}</td>
+        <td>${toTienDot(item.donGiaPhong)}</td>
+        <td><button class="delete btn btn-danger">Xóa</button></td>
+      `;
+      cartTable.appendChild(row);
+      total += item.donGiaPhong ;
+    });
+    localStorage.setItem("landat", JSON.stringify(landat))
+    totalPriceCell.textContent = toTienDot(total);
+
+    document.querySelectorAll(".delete").forEach( (element, index)=>{
+        element.addEventListener("click", (e) => {
+            
+            data.splice(index, 1)
+            landat.splice(index, 1);
+            localStorage.setItem("landat", JSON.stringify(landat))
+            renderCart(data)
+        })
+    })
+
+  }
+
+  // Hàm xóa một mục khỏi giỏ hàng
+  
+
+
+  function toTienDot(tien) {
+    tien = tien + ""
+  kq = "";
+  doDai = tien.length - 1;
+  for (let i = doDai; i >= 0; i--) {
+    kq = tien[i] + kq;
+
+    if (i != 0 && doDai - 1 + 1 != 1 && (doDai - i + 1) % 3 == 0) {
+      kq = "." + kq;
+    }
+  }
+  return kq + "đ";
+}
+
+</script>
+
+
+
+</body>
+</html>

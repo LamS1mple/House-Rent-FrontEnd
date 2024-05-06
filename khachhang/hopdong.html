@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Đơn đặt hàng</title>
+    <style>
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      th,
+      td {
+        border: 1px solid #dddddd;
+        text-align: left;
+        padding: 8px;
+      }
+      th {
+        background-color: #f2f2f2;
+      }
+      .input-field {
+        margin-bottom: 10px;
+      }
+      .button {
+        padding: 10px 20px;
+        background-color: #4caf50;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <h2>Hợp đồng</h2>
+
+    <div class="input-field">
+      <label for="customer-name">Tên khách hàng:</label>
+      <span id="customer-name"></span>
+    </div>
+
+    <div class="input-field">
+      <label for="due-date">Ngày hết hợp đồng:</label>
+      <input type="date" id="due-date" />
+    </div>
+
+    <div>
+      <h3>Điều khoản:</h3>
+      <ul>
+        <li>
+          1. Khi trả phòng sẽ bị trừ tiền cọc tùy thuộc vào mức độ thiệt hại khi
+          thuê phòng
+        </li>
+        <li>2. Giữ kìn vệ sinh sạch sẽ</li>
+        <li>3. Đóng tiền đúng hạn</li>
+      </ul>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>STT</th>
+          <th>Tên phòng</th>
+          <th>Địa chỉ phòng</th>
+          <th>Mô tả</th>
+          <th>Đơn giá</th>
+        </tr>
+      </thead>
+      <tbody id="room-list"></tbody>
+    </table>
+
+    <button class="button" onclick="checkout()">Thanh toán</button>
+
+    <script>
+      const user = JSON.parse(localStorage.getItem("khachhang"));
+      document.getElementById("customer-name").innerHTML = user.ten;
+      const listPhong = JSON.parse(localStorage.getItem("list-phong"));
+      let cartTable = document.querySelector("#room-list");
+      listPhong.forEach((item, index) => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+        <td>${index + 1}</td>
+        <td>${item.tenPhong}</td>
+        <td>${item.diaChi}</td>
+        <td>${item.thongTinPhong}</td>
+        <td>${toTienDot(item.donGiaPhong)}</td>
+      `;
+        cartTable.appendChild(row);
+      });
+      async function postData(url = "", data = {}) {
+        // Default options are marked with *
+        const response = await fetch(url, {
+          method: "POST", // *GET, POST, PUT, DELETE, etc.
+          mode: "cors", // no-cors, *cors, same-origin
+          cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+          credentials: "same-origin", // include, *same-origin, omit
+          headers: {
+            "Content-Type": "application/json",
+            // 'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          redirect: "follow", // manual, *follow, error
+          referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+          body: JSON.stringify(data), // body data type must match "Content-Type" header
+        });
+        return response.json(); // parses JSON response into native JavaScript objects
+      }
+      function toTienDot(tien) {
+        tien = tien + "";
+        kq = "";
+        doDai = tien.length - 1;
+        for (let i = doDai; i >= 0; i--) {
+          kq = tien[i] + kq;
+
+          if (i != 0 && doDai - 1 + 1 != 1 && (doDai - i + 1) % 3 == 0) {
+            kq = "." + kq;
+          }
+        }
+        return kq + "đ";
+      }
+
+      async function checkout() {
+        
+        let ngay = document.querySelector("#due-date").value.split("-")
+        console.table(listPhong)
+       
+        const data = {
+            ngayHetHan: `${ngay[2]}/${ngay[1]}/${ngay[0]}`,
+            lanDat:{
+                khachHang:user,
+                danhSachPhongDat:listPhong.map(x =>(
+                  {
+                    phong:x
+                  }
+                ))
+            }
+        }
+        alert("Đặt phòng thành công")
+        localStorage.setItem("landat", JSON.stringify([]))
+        window.location.href = "home.html"
+        const response =await (postData("http://localhost:8080/hop-dong/save-hop-dong",data))
+
+        
+      }
+    </script>
+  </body>
+</html>
