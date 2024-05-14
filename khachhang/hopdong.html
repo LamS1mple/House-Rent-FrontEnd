@@ -40,11 +40,11 @@
     </div>
     <div class="input-field">
       <label for="start-date">Ngày bắt đầu hợp đồng:</label>
-      <input type="date" id="start-date" />
+      <input type="date" id="start-date" readonly/>
     </div>
     <div class="input-field">
       <label for="due-date">Ngày hết hợp đồng:</label>
-      <input type="date" id="due-date" />
+      <input type="date" id="due-date" readonly/>
     </div>
 
     <div>
@@ -78,6 +78,9 @@
       const user = JSON.parse(localStorage.getItem("khachhang"));
       document.getElementById("customer-name").innerHTML = user.ten;
       const listPhong = JSON.parse(localStorage.getItem("list-phong"));
+      const dateSreach = JSON.parse(localStorage.getItem("dateSreach"))
+      document.querySelector("#due-date").value = dateSreach.ngayKetThuc
+      document.querySelector("#start-date").value = dateSreach.ngayBatDau
       let cartTable = document.querySelector("#room-list");
       listPhong.forEach((item, index) => {
         const row = document.createElement("tr");
@@ -123,11 +126,14 @@
 
       async function checkout() {
         
-        let ngay = document.querySelector("#due-date").value.split("-")
+        let ngayHetHan = document.querySelector("#due-date").value.split("-")
+        let ngayBatDau = document.querySelector("#start-date").value.split("-")
         console.table(listPhong)
        
         const data = {
-            ngayHetHan: `${ngay[2]}/${ngay[1]}/${ngay[0]}`,
+            ngayHetHan: `${ngayHetHan[2]}/${ngayHetHan[1]}/${ngayHetHan[0]}`,
+            ngayBatDau: `${ngayBatDau[2]}/${ngayBatDau[1]}/${ngayBatDau[0]}`,
+
             lanDat:{
                 khachHang:user,
                 danhSachPhongDat:listPhong.map(x =>(

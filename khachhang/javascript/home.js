@@ -14,20 +14,34 @@ async function postData(url = "", data = {}) {
     });
     return response.json(); // parses JSON response into native JavaScript objects
 }
+function formatDate(currentDate){
+  const year = currentDate.getFullYear();
+const month = String(currentDate.getMonth() + 1).padStart(2, '0'); // Tháng bắt đầu từ 0 nên cần +1 và padStart để đảm bảo có 2 chữ số
+const day = String(currentDate.getDate()).padStart(2, '0');
+return year +"-"+ month + "-" + day;
+}
 
 const content = document.querySelector("#content")
+let data = JSON.parse(localStorage.getItem("dateSreach"))
+if (data == null){
+  const ngayBatDau = formatDate(new Date());
+  const ngayKetThuc = (formatDate(new Date((new Date() ).getTime()+ 86400000)))
+  data = {ngayBatDau, ngayKetThuc}
+  localStorage.setItem("dateSreach", JSON.stringify(data))
+}
+console.log(data)
 
-getDataPhong()
 
-async function getDataPhong(){
-    const response = await( fetch("http://localhost:8080/phong/empty-phong") )
-    const phong = await response.json();
-    
+async function getDataPhong(data){
+
+    const phong = await postData("http://localhost:8080/phong/empty-phong", data);
+    content.innerHTML = ""
+
     phong.forEach(element => {
         const item = document.createElement("div")
         let value = ""
         if (element.trangThai){
-            value = `<div class="property p-3 mb-2 bg-success text-white" style="display: flex;">`
+            value = `<div class="property" style="display: flex;">`
         }
         else{
             value = `<div class="property" style="display: flex;">`
@@ -41,45 +55,41 @@ async function getDataPhong(){
             <p>Địa chỉ: ${element.diaChi}</p>
             <p>Mô tả: ${element.thongTinPhong}</p>
             <button  class="xemchitiet btn btn-info" >Chi tiết</button>
-            <input type=text value="${element.id}" >
+            <input class="idPhong" type=text value="${element.id}" >
         </div>
         </div>`
         content.appendChild(item)
     });
     
 
-    async function postData(url = "", data = {}) {
-        // Default options are marked with *
-        const response = await fetch(url, {
-          method: "POST", // *GET, POST, PUT, DELETE, etc.
-          mode: "cors", // no-cors, *cors, same-origin
-          cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
-          credentials: "same-origin", // include, *same-origin, omit
-          headers: {
-            "Content-Type": "application/json",
-            // 'Content-Type': 'application/x-www-form-urlencoded',
-          },
-          redirect: "follow", // manual, *follow, error
-          referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
-          body: JSON.stringify(data), // body data type must match "Content-Type" header
-        });
-        return response.json(); // parses JSON response into native JavaScript objects
-      }
     document.querySelectorAll(".xemchitiet").forEach((element, index) =>{
         element.addEventListener("click", (e)=>{
             
-            localStorage.setItem("idPhong", parseInt(document.querySelectorAll("input")[index].value))
+            localStorage.setItem("idPhong", parseInt(document.querySelectorAll(".idPhong")[index].value))
             window.location = "detail_phong.html"
         })
     })
     
 }
 
-const ngayBatDau = document.querySelector("#bd")
-const ngayKetThuc = document.querySelector("#kt")
+const ngayBatDauInput = document.querySelector("#bd")
+const ngayKetThucInput = document.querySelector("#kt")
 const submit = document.querySelector("#submit")
-
+getDataPhong(data)
+ngayBatDauInput.value = data.ngayBatDau
+ngayKetThucInput.value = data.ngayKetThuc
 submit.addEventListener("click", (e)=>{
-  e.defaultPrevented()
-  
+
+  const dateSreach = {
+    ngayBatDau: ngayBatDauInput.value,
+    ngayKetThuc: ngayKetThucInput.value
+  }
+  let lanDat =[];
+  localStorage.setItem("landat", JSON.stringify(lanDat))
+  console.log(dateSreach)
+  localStorage.setItem("dateSreach", JSON.stringify(dateSreach))
+
+  getDataPhong(dateSreach)
+  e.preventDefault()
+
 })
