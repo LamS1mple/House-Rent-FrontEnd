@@ -1,90 +1,17 @@
-var isQuy = false;
-      changePeriodType();
-      function changePeriodType() {
-        var timePeriod = document.getElementById("time-period").value;
-        var periodSelect = document.getElementById("period");
-        // Xóa tất cả các tùy chọn cũ
-        periodSelect.innerHTML = "";
+const thongKeConvert = JSON.parse(localStorage.getItem("data-thong-ke"))
+if (thongKeConvert.isMonth){
+    document.querySelector("#title").innerHTML =`Tất cả hóa đơn tháng ${thongKeConvert.valueMonthQuerter} năm ${thongKeConvert.nam}` 
+}else{
+    document.querySelector("#title").innerHTML =`Tất cả hóa đơn quý ${thongKeConvert.valueMonthQuerter} năm ${thongKeConvert.nam}` 
 
-        // Tạo các tùy chọn mới tùy thuộc vào lựa chọn của người dùng
-        if (timePeriod === "month") {
-          isQuy = true;
-          for (var i = 1; i <= 12; i++) {
-            var option = document.createElement("option");
-            option.text = "Tháng " + i;
-            option.value = i;
-            periodSelect.appendChild(option);
-          }
-        } else if (timePeriod === "quarter") {
-          isQuy = false;
-          for (var i = 1; i <= 4; i++) {
-            var option = document.createElement("option");
-            option.text = "Quý " + i;
-            option.value = i;
-            periodSelect.appendChild(option);
-          }
-        }
-      }
-      function getLastDayOfMonth(year, month) {
-        // Tạo một đối tượng Date đại diện cho ngày cuối cùng của tháng
-        var lastDay = new Date(year, month, 0);
+}
 
-        // Lấy ngày trong tháng
-        var day = lastDay.getDate();
-
-        // Lấy tháng, cần thêm 1 vì tháng trong JavaScript bắt đầu từ 0 (0 -> January, 11 -> December)
-        var month = lastDay.getMonth() + 1;
-
-        // Lấy năm
-        var year = lastDay.getFullYear();
-
-        // Định dạng ngày, tháng, năm thành chuỗi "dd/MM/yyyy"
-        var formattedDate =
-          ("0" + day).slice(-2) + "/" + ("0" + month).slice(-2) + "/" + year;
-
-        return formattedDate + " 23:59:59";
-      }
-
-      function getFirstDayOfMonth(year, month) {
-        var firstDay = new Date(year, month - 1, 1);
-
-        // Lấy ngày trong tháng
-        var day = firstDay.getDate();
-
-        // Lấy tháng, cần thêm 1 vì tháng trong JavaScript bắt đầu từ 0 (0 -> January, 11 -> December)
-        var month = firstDay.getMonth() + 1;
-
-        // Lấy năm
-        var year = firstDay.getFullYear();
-
-        // Định dạng ngày, tháng, năm thành chuỗi "dd/MM/yyyy"
-        var formattedDate =
-          ("0" + day).slice(-2) + "/" + ("0" + month).slice(-2) + "/" + year;
-
-        return formattedDate + " 00:00:00";
-      }
-
+generateReport()
       async function generateReport() {
-        const timePeriod = document.getElementById("time-period").value;
-        const period = parseInt(document.getElementById("period").value);
-        const year = parseInt(document.getElementById("year").value);
-        var data = {};
-        if (isQuy) {
-          data = {
-            ngayBatDau: getFirstDayOfMonth(year, period),
-            ngayKetThuc: getLastDayOfMonth(year, period),
-          };
-        } else {
-          data = {
-            ngayBatDau: getFirstDayOfMonth(year, period * 3 - 2),
-            ngayKetThuc: getLastDayOfMonth(year, period * 3),
-          };
-        }
-        console.log(data);
+        
 
         const response = await postData(
-          "http://localhost:8080/thong-ke/thong-ke-doanh-thu",
-          data
+          "http://localhost:8080/thong-ke/thong-ke-hoa-don", thongKeConvert
         );
         console.log(response);
 
@@ -132,10 +59,11 @@ var isQuy = false;
           invoiceList.appendChild(row);
         });
         document.querySelector("#tong-tien").innerHTML =`Tổng tiền: ${toTienDot(sum  )}`
+
         document.querySelectorAll(".tick").forEach((element, index) => {
           element.addEventListener("click", function (e) {
             localStorage.setItem("hoadon", JSON.stringify(response[index]));
-            window.location.href = "chi-tiet-hoa-don.html";
+            window.location.href = "./chi-tiet-hoa-don.html";
           });
         });
       }

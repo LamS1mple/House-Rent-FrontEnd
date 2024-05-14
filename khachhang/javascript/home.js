@@ -75,3 +75,11 @@ async function getDataPhong(){
     
 }
 
+const ngayBatDau = document.querySelector("#bd")
+const ngayKetThuc = document.querySelector("#kt")
+const submit = document.querySelector("#submit")
+
+submit.addEventListener("click", (e)=>{
+  e.defaultPrevented()
+  
+})

@@ -24,6 +24,8 @@
         const revenueTableBody = document.querySelector('#revenue-table tbody');
         const btnThongKe = document.getElementById('btn-thongke');
 
+        console.log(selectType.value)
+
         // Hàm để cập nhật bảng dữ liệu
         async function updateRevenueTable() {
             
@@ -31,6 +33,7 @@
 
             let nam = inputYear.value
             let isMonth = true
+            
             if (selectType.value === 'thang') {
                 thongTin = "Tháng"
                 isMonth = true
@@ -40,7 +43,7 @@
                 isMonth = false
                 
             }
-
+            
             const data =await postData("http://localhost:8080/thong-ke/thong-ke-doanh-thu", {
                 isMonth, nam
             })
@@ -51,9 +54,9 @@
             // Lặp qua dữ liệu và thêm vào bảng
             data.forEach(item => {
                 const row = document.createElement('tr');
-                row.innerHTML = `<td>${thongTin} ${item.id}</td>
+                row.innerHTML = `<td>${thongTin} ${item.thoigian}</td>
                 <td>${toTienDot(item.tongTien +"")}</td>
-                <td><button class="btn-xem-chi-tiet btn" value="${item.id}">Xem chi tiết</button></td>`;
+                <td><button class="btn-xem-chi-tiet btn" value="${item.thoigian}">Xem chi tiết</button></td>`;
                 revenueTableBody.appendChild(row);
 
                 row.querySelector('.btn-xem-chi-tiet').addEventListener('click', (e) => {

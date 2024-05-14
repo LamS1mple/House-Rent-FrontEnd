@@ -88,14 +88,16 @@
     `
     // Render dữ liệu dịch vụ vào bảng
     var serviceTableBody = document.getElementById("service-table-body");
-    data.phongDat.danhSachChiTietDichVu.forEach(function(service, index) {
+    data.chiTietDichVuThang.forEach(function(service, index) {
         var row = document.createElement("tr");
-        row.innerHTML = "<td>" + index + "</td>" +
+        const thongTinCu = service.dichVuMoi == null ? 0 : service.soLuong
+        const thongTinMoi = service.dichVuMoi == null ? service.soLuong : service.dichVuMoi.soLuong
+        row.innerHTML = "<td>" +(index + 1) + "</td>" +
                         "<td>" + service.dichVu.tenDichVu + "</td>" +
                         "<td>" + toTienDot(service.dichVu.donGia) + "</td>" +
-                        "<td>" + service.soLuongCu + "</td>" +
-                        "<td>" + service.soLuongMoi + "</td>" +
-                        "<td>" + toTienDot((service.dichVu.donGia ) *( service.soLuongMoi - service.soLuongCu)) + "</td>";
+                        "<td>" + thongTinCu + "</td>" +
+                        "<td>" + thongTinMoi + "</td>" +
+                        "<td>" + toTienDot((service.dichVu.donGia ) *(thongTinMoi - thongTinCu)) + "</td>";
         serviceTableBody.appendChild(row);
     });
 
